@@ -1,0 +1,122 @@
+TransactionID,Date,Year,Month,YearMonth,Description,Category,Category_Raw,Amount,Payment Method,Weekday,IsOneOff
+T0001,2025-12-12,2025,12,2025-12,Adidas US Online Store,Shopping,Merchandise,105.0,Discover Card,Friday,No
+T0002,2025-12-24,2025,12,2025-12,Desi Chowrastha Nashua NH,Restaurants,Restaurants,78.07,Discover Card,Wednesday,No
+T0003,2025-12-28,2025,12,2025-12,Nike.com,Shopping,Merchandise,165.0,Discover Card,Sunday,No
+T0004,2025-12-30,2025,12,2025-12,Milkshake Lovers Nashua NH,Restaurants,Restaurants,7.74,Discover Card,Tuesday,No
+T0005,2025-12-30,2025,12,2025-12,Desi Chowrastha Nashua NH,Restaurants,Restaurants,40.12,Discover Card,Tuesday,No
+T0006,2025-12-30,2025,12,2025-12,Desi Chowrastha Nashua NH,Restaurants,Restaurants,14.09,Discover Card,Tuesday,No
+T0007,2025-12-30,2025,12,2025-12,Whole Foods Nashua NH,Groceries,Supermarkets,13.77,Discover Card,Tuesday,No
+T0008,2025-12-31,2025,12,2025-12,Great Clips Nashua NH,Personal Care,Personal Care,23.0,BofA Credit,Wednesday,No
+T0009,2025-12-31,2025,12,2025-12,Trinity Realty II Cambridge MA,Housing,Housing,15.0,BofA Credit,Wednesday,No
+T0010,2025-12-31,2025,12,2025-12,75 State St Garage Boston MA,Transport,Transport,18.0,BofA Credit,Wednesday,No
+T0011,2025-12-31,2025,12,2025-12,Maharaja Cambridge MA,Restaurants,Restaurants,213.9,Discover Card,Wednesday,No
+T0012,2025-12-31,2025,12,2025-12,OpenAI ChatGPT Subscription,Subscriptions,Subscriptions,20.0,BofA Credit,Wednesday,No
+T0013,2026-01-01,2026,1,2026-01,7-Eleven Nashua NH,Gasoline,Convenience Store,4.0,BofA Credit,Thursday,No
+T0014,2026-01-01,2026,1,2026-01,Nouria Store Nashua NH,Gasoline,Gas/Convenience,25.95,BofA Credit,Thursday,No
+T0015,2026-01-02,2026,1,2026-01,Visafoto.com,Subscriptions,Online Services,9.0,BofA Credit,Friday,No
+T0016,2026-01-02,2026,1,2026-01,Staples Nashua NH,Office Supplies,Office Supplies,2.74,BofA Credit,Friday,No
+T0017,2026-01-02,2026,1,2026-01,Howe Street Superette Methuen MA,Groceries,Groceries,7.35,BofA Credit,Friday,No
+T0018,2026-01-03,2026,1,2026-01,Desi Chowrastha Nashua NH,Restaurants,Restaurants,8.67,BofA Credit,Saturday,No
+T0019,2026-01-03,2026,1,2026-01,Desi Chowrastha Nashua NH,Restaurants,Restaurants,21.69,BofA Credit,Saturday,No
+T0020,2026-01-04,2026,1,2026-01,Starbucks Nashua NH,Coffee,Coffee,6.13,BofA Credit,Sunday,No
+T0021,2026-01-04,2026,1,2026-01,Patel Brothers Nashua NH,Groceries,Groceries,16.03,BofA Credit,Sunday,No
+T0022,2026-01-05,2026,1,2026-01,Walmart Hudson NH,Shopping,Shopping,19.68,BofA Credit,Monday,No
+T0023,2026-01-05,2026,1,2026-01,Nouria Store Nashua NH,Gasoline,Gas/Convenience,16.21,BofA Credit,Monday,No
+T0024,2026-01-05,2026,1,2026-01,Chipotle Methuen MA,Restaurants,Restaurants,13.48,BofA Credit,Monday,No
+T0025,2026-01-06,2026,1,2026-01,Chipotle Methuen MA,Restaurants,Restaurants,13.48,BofA Credit,Tuesday,No
+T0026,2026-01-07,2026,1,2026-01,USCIS I-765 Fee,Government,Government,470.0,BofA Credit,Wednesday,Yes
+T0027,2026-01-07,2026,1,2026-01,Staples Nashua NH,Office Supplies,Office Supplies,0.9,BofA Credit,Wednesday,No
+T0028,2026-01-07,2026,1,2026-01,Staples Nashua NH,Office Supplies,Office Supplies,0.6,BofA Credit,Wednesday,No
+T0029,2026-01-07,2026,1,2026-01,Staples Nashua NH,Office Supplies,Office Supplies,0.6,BofA Credit,Wednesday,No
+T0030,2026-01-07,2026,1,2026-01,Staples Nashua NH,Office Supplies,Office Supplies,0.6,BofA Credit,Wednesday,No
+T0031,2026-01-07,2026,1,2026-01,Staples Nashua NH,Office Supplies,Office Supplies,1.8,BofA Credit,Wednesday,No
+T0032,2026-01-08,2026,1,2026-01,Vpdfhouse Wilmington DE,Subscriptions,Online Services,1.95,BofA Credit,Thursday,No
+T0033,2026-01-08,2026,1,2026-01,Desi Chowrastha Nashua NH,Restaurants,Restaurants,2.16,BofA Credit,Thursday,No
+T0034,2026-01-10,2026,1,2026-01,Summit One Vanderbilt NY,Entertainment,Entertainment,251.51,BofA Credit,Saturday,Yes
+T0035,2026-01-12,2026,1,2026-01,Gas Station Cranbury NJ,Gasoline,Gasoline,23.37,Discover Card,Monday,No
+T0036,2026-01-13,2026,1,2026-01,One Vanderbilt New York NY,Shopping,Shopping,25.0,BofA Credit,Tuesday,No
+T0037,2026-01-13,2026,1,2026-01,Foodcourt New York NY,Restaurants,Restaurants,18.4,BofA Credit,Tuesday,No
+T0038,2026-01-13,2026,1,2026-01,MTA NYCT PayGo New York NY,Transport,Transport,3.0,BofA Credit,Tuesday,No
+T0039,2026-01-13,2026,1,2026-01,MTA NYCT PayGo New York NY,Transport,Transport,3.0,BofA Credit,Tuesday,No
+T0040,2026-01-13,2026,1,2026-01,MTA NYCT PayGo New York NY,Transport,Transport,3.0,BofA Credit,Tuesday,No
+T0041,2026-01-13,2026,1,2026-01,Summit One Vanderbilt NY,Entertainment,Entertainment,10.89,BofA Credit,Tuesday,Yes
+T0042,2026-01-13,2026,1,2026-01,Starbucks New York NY,Coffee,Coffee,26.53,BofA Credit,Tuesday,No
+T0043,2026-01-13,2026,1,2026-01,Starbucks New York NY,Coffee,Coffee,7.02,BofA Credit,Tuesday,No
+T0044,2026-01-13,2026,1,2026-01,MTA NYCT PayGo New York NY,Transport,Transport,3.0,BofA Credit,Tuesday,No
+T0045,2026-01-14,2026,1,2026-01,Desi Chowrastha Nashua NH,Restaurants,Restaurants,52.05,Discover Card,Wednesday,No
+T0046,2026-01-15,2026,1,2026-01,Nouria Store Nashua NH,Gasoline,Gas/Convenience,22.48,BofA Credit,Thursday,No
+T0047,2026-01-15,2026,1,2026-01,Pheasant Lane Nashua NH,Restaurants,Restaurants,10.62,Discover Card,Thursday,No
+T0048,2026-01-16,2026,1,2026-01,ExxonMobil Salem NH,Gasoline,Gasoline,15.57,Discover Card,Friday,No
+T0049,2026-01-17,2026,1,2026-01,Dunkin Methuen MA,Restaurants,Restaurants,2.86,Discover Card,Saturday,No
+T0050,2026-01-17,2026,1,2026-01,Gong Cha Farmington CT,Restaurants,Restaurants,8.71,Discover Card,Saturday,No
+T0051,2026-01-17,2026,1,2026-01,Macys Starbucks Farmington CT,Coffee,Coffee,11.27,Discover Card,Saturday,No
+T0052,2026-01-19,2026,1,2026-01,Apple Cinemas Merrimack NH,Entertainment,Entertainment,42.0,BofA Credit,Monday,No
+T0053,2026-01-19,2026,1,2026-01,Logan Airport Parking Boston MA,Transport,Transport,26.0,BofA Credit,Monday,No
+T0054,2026-01-20,2026,1,2026-01,The Jewelers Workbench Salem NH,Shopping,Shopping,25.0,BofA Credit,Tuesday,No
+T0055,2026-01-20,2026,1,2026-01,Nouria Store Nashua NH,Gasoline,Gas/Convenience,12.1,BofA Credit,Tuesday,No
+T0056,2026-01-20,2026,1,2026-01,Gourmet India Burlington MA,Restaurants,Restaurants,15.93,BofA Credit,Tuesday,No
+T0057,2026-01-20,2026,1,2026-01,Gourmet India Burlington MA,Restaurants,Restaurants,7.44,BofA Credit,Tuesday,No
+T0058,2026-01-23,2026,1,2026-01,Patel Brothers Nashua NH,Groceries,Groceries,12.43,BofA Credit,Friday,No
+T0059,2026-01-23,2026,1,2026-01,Cumberland Farms Nashua NH,Gasoline,Gasoline,36.9,Discover Card,Friday,No
+T0060,2026-01-23,2026,1,2026-01,Patel Brothers Nashua NH,Groceries,Groceries,49.45,BofA Credit,Friday,No
+T0061,2026-01-24,2026,1,2026-01,Macys Burlington MA,Shopping,Shopping,80.0,BofA Credit,Saturday,No
+T0062,2026-01-24,2026,1,2026-01,Abercrombie & Fitch Burlington MA,Shopping,Shopping,165.0,BofA Credit,Saturday,Yes
+T0063,2026-01-24,2026,1,2026-01,Nouria Store Nashua NH,Gasoline,Gasoline,11.99,Discover Card,Saturday,No
+T0064,2026-01-27,2026,1,2026-01,Desi Chowrastha Nashua NH,Restaurants,Restaurants,60.73,BofA Credit,Tuesday,No
+T0065,2026-01-27,2026,1,2026-01,Target Nashua NH,Shopping,Shopping,6.56,BofA Credit,Tuesday,No
+T0066,2026-01-27,2026,1,2026-01,Eversource Utility Bill,Utilities,Utilities,227.46,BofA Credit,Tuesday,Yes
+T0067,2026-01-27,2026,1,2026-01,Costco Nashua NH,Groceries,Groceries,37.36,BofA Credit,Tuesday,No
+T0068,2026-01-28,2026,1,2026-01,American Eagle Nashua NH,Shopping,Shopping,23.98,BofA Credit,Wednesday,No
+T0069,2026-01-28,2026,1,2026-01,Brooks Brothers Lyndhurst NJ,Shopping,Shopping,69.94,BofA Credit,Wednesday,No
+T0070,2026-01-30,2026,1,2026-01,Vpdfhouse Online Services,Subscriptions,Online Services,39.0,BofA Credit,Friday,No
+T0071,2026-01-30,2026,1,2026-01,Nouria Store Nashua NH,Gasoline,Gas/Convenience,20.09,BofA Credit,Friday,No
+T0072,2026-01-30,2026,1,2026-01,Dunkin North Billerica MA,Coffee,Coffee,18.84,BofA Credit,Friday,No
+T0073,2026-01-30,2026,1,2026-01,Chipotle Methuen MA,Restaurants,Restaurants,10.33,BofA Credit,Friday,No
+T0074,2026-01-31,2026,1,2026-01,Patel Brothers Nashua NH,Groceries,Groceries,16.11,BofA Credit,Saturday,No
+T0075,2026-01-31,2026,1,2026-01,Patel Brothers Nashua NH,Groceries,Groceries,13.62,BofA Credit,Saturday,No
+T0076,2026-02-02,2026,2,2026-02,YMCA Greater Nashua NH,Services,Services,77.96,Discover Card,Monday,No
+T0077,2026-02-02,2026,2,2026-02,ExxonMobil North Billerica MA,Gasoline,Gasoline,11.21,Discover Card,Monday,No
+T0078,2026-02-03,2026,2,2026-02,OpenAI ChatGPT Subscription,Subscriptions,Subscriptions,20.0,Discover Card,Tuesday,No
+T0079,2026-02-05,2026,2,2026-02,Howe Street Superette Methuen MA,Groceries,Groceries,8.85,Discover Card,Thursday,No
+T0080,2026-02-07,2026,2,2026-02,Dunkin Methuen MA,Coffee,Coffee,4.18,Discover Card,Saturday,No
+T0081,2026-02-09,2026,2,2026-02,Uber Trip,Transport,Transport,11.15,BofA Credit,Monday,No
+T0082,2026-02-10,2026,2,2026-02,Costco Nashua NH,Groceries,Groceries,55.95,BofA Credit,Tuesday,No
+T0083,2026-02-11,2026,2,2026-02,Tripoli's Methuen MA,Restaurants,Restaurants,8.5,Discover Card,Wednesday,No
+T0084,2026-02-13,2026,2,2026-02,Uber Trip,Transport,Transport,13.93,BofA Credit,Friday,No
+T0085,2026-02-13,2026,2,2026-02,Dunkin Tyngsboro MA,Coffee,Coffee,20.69,BofA Credit,Friday,No
+T0086,2026-02-13,2026,2,2026-02,Staples Nashua NH,Office Supplies,Office Supplies,5.45,BofA Credit,Friday,No
+T0087,2026-02-13,2026,2,2026-02,Shaws Nashua NH,Groceries,Groceries,29.99,BofA Credit,Friday,No
+T0088,2026-02-15,2026,2,2026-02,Costco Nashua NH,Groceries,Groceries,74.53,BofA Credit,Sunday,No
+T0089,2026-02-15,2026,2,2026-02,Barnes & Noble Nashua NH,Shopping,Shopping,7.32,BofA Credit,Sunday,No
+T0090,2026-02-15,2026,2,2026-02,Patel Brothers Nashua NH,Groceries,Groceries,40.84,BofA Credit,Sunday,No
+T0091,2026-02-16,2026,2,2026-02,Nouria Store Nashua NH,Gasoline,Gas/Convenience,24.93,BofA Credit,Monday,No
+T0092,2026-02-18,2026,2,2026-02,Patel Brothers Nashua NH,Groceries,Groceries,36.96,BofA Credit,Wednesday,No
+T0093,2026-02-18,2026,2,2026-02,Starbucks Nashua NH,Coffee,Coffee,6.78,BofA Credit,Wednesday,No
+T0094,2026-02-18,2026,2,2026-02,Whole Foods Nashua NH,Groceries,Groceries,69.77,BofA Credit,Wednesday,No
+T0095,2026-02-19,2026,2,2026-02,Tropical Smoothie Cafe Methuen MA,Restaurants,Restaurants,8.34,BofA Credit,Thursday,No
+T0096,2026-02-20,2026,2,2026-02,Uber Trip,Transport,Transport,9.56,BofA Credit,Friday,No
+T0097,2026-02-20,2026,2,2026-02,7-Eleven Nashua NH,Gasoline,Convenience Store,9.87,BofA Credit,Friday,No
+T0098,2026-02-21,2026,2,2026-02,Nouria Store Nashua NH,Gasoline,Gas/Convenience,25.03,BofA Credit,Saturday,No
+T0099,2026-02-21,2026,2,2026-02,Dunkin Methuen MA,Coffee,Coffee,4.65,BofA Credit,Saturday,No
+T0100,2026-02-21,2026,2,2026-02,Desi Chowrastha Nashua NH,Restaurants,Restaurants,1.08,BofA Credit,Saturday,No
+T0101,2026-02-21,2026,2,2026-02,Starbucks Nashua NH,Coffee,Coffee,6.78,BofA Credit,Saturday,No
+T0102,2026-02-21,2026,2,2026-02,Patel Brothers Nashua NH,Groceries,Groceries,12.95,BofA Credit,Saturday,No
+T0103,2026-02-21,2026,2,2026-02,Desi Chowrastha Nashua NH,Restaurants,Restaurants,8.67,BofA Credit,Saturday,No
+T0104,2026-02-22,2026,2,2026-02,Mint Mobile Subscription,Subscriptions,Subscriptions,267.12,BofA Credit,Sunday,Yes
+T0105,2026-02-23,2026,2,2026-02,Schoharie Town Court NY,Fines/Legal,Fines/Legal,168.0,BofA Credit,Monday,Yes
+T0106,2026-02-23,2026,2,2026-02,Schoharie Court Fee,Fines/Legal,Fines/Legal,5.02,BofA Credit,Monday,Yes
+T0107,2026-02-24,2026,2,2026-02,Starbucks Nashua NH,Coffee,Coffee,6.78,BofA Credit,Tuesday,No
+T0108,2026-02-24,2026,2,2026-02,Pressed Cafe Nashua NH,Restaurants,Restaurants,13.02,BofA Credit,Tuesday,No
+T0109,2026-02-25,2026,2,2026-02,Eversource Utility Bill,Utilities,Utilities,232.61,BofA Credit,Wednesday,Yes
+T0110,2026-02-26,2026,2,2026-02,Google One Subscription,Subscriptions,Subscriptions,7.49,BofA Credit,Thursday,No
+T0111,2026-02-28,2026,2,2026-02,OpenAI ChatGPT Subscription,Subscriptions,Subscriptions,20.0,Discover Card,Saturday,No
+T0112,2026-02-28,2026,2,2026-02,McDonald's Lowell MA,Restaurants,Restaurants,12.6,Discover Card,Saturday,No
+T0113,2026-03-01,2026,3,2026-03,Uber Trip,Transport,Transport,21.38,Discover Card,Sunday,No
+T0114,2026-03-01,2026,3,2026-03,YMCA Greater Nashua NH,Services,Services,29.0,Discover Card,Sunday,No
+T0115,2026-03-02,2026,3,2026-03,Uber Trip,Transport,Transport,30.9,Discover Card,Monday,No
+T0116,2026-03-04,2026,3,2026-03,Great Clips Nashua NH,Personal Care,Personal Care,24.0,Discover Card,Wednesday,No
+T0117,2026-03-11,2026,3,2026-03,Patel Brothers Nashua NH,Groceries,Groceries,43.57,BofA Credit,Wednesday,No
+T0118,2026-03-11,2026,3,2026-03,Costco Nashua NH,Groceries,Groceries,72.23,BofA Credit,Wednesday,No
+T0119,2026-03-11,2026,3,2026-03,Chipotle Nashua NH,Restaurants,Restaurants,14.0,BofA Credit,Wednesday,No
+T0120,2026-03-11,2026,3,2026-03,Patel Brothers Nashua NH,Groceries,Groceries,8.65,BofA Credit,Wednesday,No
+T0121,2026-03-24,2026,3,2026-03,Costco Online,Shopping,Shopping,30.99,BofA Credit,Tuesday,No
