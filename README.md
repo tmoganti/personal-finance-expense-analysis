@@ -1,5 +1,14 @@
 # Personal Finance & Expense Analysis — OSEMN Portfolio Project
 
+![Python 3.10+](https://img.shields.io/badge/Python-3.10+-1F4E78?logo=python&logoColor=white)
+![License: MIT](https://img.shields.io/badge/License-MIT-2E75B6)
+![Jupyter Notebook](https://img.shields.io/badge/Jupyter-Notebook-F37626?logo=jupyter&logoColor=white)
+![pandas](https://img.shields.io/badge/pandas-150458?logo=pandas&logoColor=white)
+![openpyxl](https://img.shields.io/badge/openpyxl-Excel-5B9BD5)
+![OSEMN Framework](https://img.shields.io/badge/Framework-OSEMN-1F4E78)
+
+![Dashboard Preview](Dashboard_Preview.png)
+
 A portfolio-ready personal finance analysis built on the **OSEMN** framework
 (Obtain → Scrub → Explore → Model → iNterpret) over my own transaction feed.
 
@@ -42,7 +51,6 @@ Category_Raw, Amount, Payment Method, Weekday, IsOneOff`.
 | File | What it is | How to use |
 |---|---|---|
 | `Personal_Finance_Dashboard.xlsx` | Interactive Excel dashboard — 3 filter dropdowns, 5 KPIs, 5 charts incl. a 2-series Month-over-Month (Total vs Recurring), Key Insights panel. | Open in Microsoft Excel. Use the **Month / Category / Payment Method** dropdowns at the top — every KPI and chart updates automatically. |
-| `Personal_Finance_Dashboard_Numbers.xlsx` | Same dashboard rebuilt with A1-style ranges and no `_xlfn.` prefixes so it imports into **Apple Numbers** without `#NAME?` errors. | Open in Numbers (File → Open). Filter dropdowns become pop-up menus. |
 | `Expense_Analysis_OSEMN.ipynb` | Fully-executed Jupyter notebook walking through OSEMN with pandas + matplotlib + seaborn. Outputs are pre-rendered; no kernel needed to read. | Open in Jupyter / VS Code to read; "Run All" to reproduce. |
 | `Dashboard_Preview.png` | One-shot 1920×1080 composite of the full dashboard — KPI band + 5 charts + Insights footer. | LinkedIn post, slide thumbnail, portfolio README hero image. |
 | `expenses.csv` | The cleaned, analysis-ready transaction feed (output of `scripts/clean_data.py`). | Swap in your own data — keep the same column names and the dashboard just works. |
@@ -58,8 +66,8 @@ Category_Raw, Amount, Payment Method, Weekday, IsOneOff`.
 ├──────────┬──────────┬──────────────────────────────────────────┤
 │ MONTH    │ CATEGORY │ PAYMENT METHOD   (dropdown filters)      │
 ├──────────┴──────────┴──────────────────────────────────────────┤
-│ TOTAL │ MONTHLY │ TRANS.  │ TOP        │ AVG / TXN  (or        │
-│ SPEND │ AVG     │         │ CATEGORY   │ LARGEST TXN in Excel) │
+│ TOTAL │ MONTHLY │ TRANS.  │ TOP        │ LARGEST              │
+│ SPEND │ AVG     │ COUNT   │ CATEGORY   │ TXN                  │
 ├────────────────────────────┬───────────────────────────────────┤
 │  Spend by Category         │  Daily Spend Trend                │
 ├────────────┬───────────────┴───────────┬───────────────────────┤
@@ -88,19 +96,6 @@ Category_Raw, Amount, Payment Method, Weekday, IsOneOff`.
   charges stop drowning out the baseline. This uses a separate
   `SUMIFS(..., Transactions[IsOneOff], "No")` formula.
 
-## Excel vs Numbers
-
-Two variants ship to cover both apps:
-
-- **Excel (`Personal_Finance_Dashboard.xlsx`)** uses structured table
-  references (`Transactions[Amount]`) and `_xlfn.MAXIFS` for the
-  *Largest Txn* KPI. Native in Excel 2013+.
-- **Numbers (`Personal_Finance_Dashboard_Numbers.xlsx`)** uses A1
-  ranges (`Transactions!$I$2:$I$122`) and swaps `MAXIFS` for
-  `=IFERROR(TotalSpend / TransactionCount, 0)` (`Avg / Txn`) because
-  Numbers doesn't resolve the `_xlfn.` prefix and shows `#NAME?` for
-  `MAXIFS`. An "Open in Numbers" guide sheet documents what to click.
-
 ## OSEMN steps covered in the notebook
 
 1. **Obtain** — load `expenses.csv`, describe the feed.
@@ -128,7 +123,6 @@ rebuild from scratch.
 | `scripts/extract_pdfs.py` | Reads every bank/credit-card PDF in this folder, detects the format (Discover · BofA Visa · BofA Checking), and extracts purchase rows into a unified CSV. Discover categories are kept as-issued; BofA credit-card rows get `Uncategorized` for manual mapping. BofA checking statements are intentionally left as a stub — the deposit/debit layout is different and belongs in a separate parser. | `extracted_from_pdfs.csv` |
 | `scripts/clean_data.py` | Scrubs the raw CSV: trims headers, fixes 4 typo rows dated `2026-12-31` → `2025-12-31`, consolidates overlapping categories, flags one-off transactions, derives time features, assigns `TransactionID`. | `expenses.csv` |
 | `scripts/build_dashboard.py` | Builds the Excel-native dashboard via `openpyxl`. Structured table refs + `_xlfn.MAXIFS`. | `Personal_Finance_Dashboard.xlsx` |
-| `scripts/build_dashboard_numbers.py` | Builds the Numbers-compatible dashboard. A1 refs, no `_xlfn.`, Avg/Txn KPI, PieChart instead of DoughnutChart, pop-up menu data validation. | `Personal_Finance_Dashboard_Numbers.xlsx` |
 | `scripts/build_notebook.py` | Hand-rolls the Jupyter `.ipynb` with all 27 cells pre-executed and all figures embedded as base64 PNGs. | `Expense_Analysis_OSEMN.ipynb` + `figures/*.png` |
 | `scripts/render_preview.py` | Renders the single-image composite PNG preview of the dashboard for LinkedIn / slide decks. | `Dashboard_Preview.png` |
 
@@ -140,7 +134,6 @@ Drop new statement PDFs next to the existing ones and re-run:
 python scripts/extract_pdfs.py       # PDFs → extracted_from_pdfs.csv
 python scripts/clean_data.py         # raw CSV → expenses.csv
 python scripts/build_dashboard.py    # expenses.csv → Excel dashboard
-python scripts/build_dashboard_numbers.py
 python scripts/build_notebook.py
 python scripts/render_preview.py
 ```
