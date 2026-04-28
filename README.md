@@ -180,3 +180,9 @@ The **9 PDF statements** in this folder are the original source of truth:
 `scripts/extract_pdfs.py` ingests the first six and reconstructs
 `expenses.csv` exactly (same 121 transactions, same $4,506.53 total) —
 the end-to-end pipeline is fully reproducible from the raw PDFs.
+
+---
+
+Built by **[Tarun Moganti](https://www.linkedin.com/in/tarun-moganti-b14523168/)** ·
+[LinkedIn](https://www.linkedin.com/in/tarun-moganti-b14523168/) ·
+[GitHub](https://github.com/tmoganti)
