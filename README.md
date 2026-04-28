@@ -4,8 +4,12 @@
 ![License: MIT](https://img.shields.io/badge/License-MIT-2E75B6)
 ![Jupyter Notebook](https://img.shields.io/badge/Jupyter-Notebook-F37626?logo=jupyter&logoColor=white)
 ![pandas](https://img.shields.io/badge/pandas-150458?logo=pandas&logoColor=white)
+![Chart.js](https://img.shields.io/badge/Chart.js-FF6384?logo=chartdotjs&logoColor=white)
 ![openpyxl](https://img.shields.io/badge/openpyxl-Excel-5B9BD5)
 ![OSEMN Framework](https://img.shields.io/badge/Framework-OSEMN-1F4E78)
+
+> **🌐 [Open the live dashboard →](https://tmoganti.github.io/personal-finance-expense-analysis/spending_dashboard.html)**
+> Modern web view with month tabs, hover tooltips, recurring-vs-one-off insight strip, and FICO + checking-balance panels. Runs entirely in the browser — zero install.
 
 ![Dashboard Preview](Dashboard_Preview.png)
 
@@ -50,51 +54,68 @@ Category_Raw, Amount, Payment Method, Weekday, IsOneOff`.
 
 | File | What it is | How to use |
 |---|---|---|
-| `Personal_Finance_Dashboard.xlsx` | Interactive Excel dashboard — 3 filter dropdowns, 5 KPIs, 5 charts incl. a 2-series Month-over-Month (Total vs Recurring), Key Insights panel. | Open in Microsoft Excel. Use the **Month / Category / Payment Method** dropdowns at the top — every KPI and chart updates automatically. |
+| **`spending_dashboard.html`** | **Interactive web dashboard (hero deliverable).** Modern Chart.js layout — 4 KPI cards, recurring-vs-one-off insight strip, donut + bar + line charts, top-10 merchants, FICO trajectory, BofA checking balance. Filter by month with one click. | Open in any browser, or visit the [live URL](https://tmoganti.github.io/personal-finance-expense-analysis/spending_dashboard.html). Self-contained — no server, no build step at view time. |
+| `Personal_Finance_Dashboard.xlsx` | Excel dashboard variant — 3 filter dropdowns, 5 KPIs, 5 charts incl. 2-series Month-over-Month (Total vs Recurring), Key Insights panel. | Downloadable backup for offline / Excel-native use. Open in Microsoft Excel; flip the **Month / Category / Payment Method** dropdowns. |
 | `Expense_Analysis_OSEMN.ipynb` | Fully-executed Jupyter notebook walking through OSEMN with pandas + matplotlib + seaborn. Outputs are pre-rendered; no kernel needed to read. | Open in Jupyter / VS Code to read; "Run All" to reproduce. |
-| `Dashboard_Preview.png` | One-shot 1920×1080 composite of the full dashboard — KPI band + 5 charts + Insights footer. | LinkedIn post, slide thumbnail, portfolio README hero image. |
+| `Dashboard_Preview.png` | High-res screenshot of the live HTML dashboard for LinkedIn / slide thumbnails / README hero. | Embed in posts, decks, portfolio sites. |
 | `expenses.csv` | The cleaned, analysis-ready transaction feed (output of `scripts/clean_data.py`). | Swap in your own data — keep the same column names and the dashboard just works. |
 | `extracted_from_pdfs.csv` | Raw output of the PDF → CSV extractor (no consolidation, no one-off flagging). | Audit trail that ties each txn back to its source statement PDF. |
 | `figures/` | Standalone PNG exports of each notebook chart. | Slide decks, LinkedIn, etc. |
-| `scripts/` | The six scripts that produced everything above (see below). | Re-run to rebuild any deliverable from scratch. |
+| `scripts/` | The seven scripts that produced everything above (see below). | Re-run to rebuild any deliverable from scratch. |
 
-## Dashboard layout
+## Live dashboard (GitHub Pages)
+
+The HTML dashboard is published live at:
+
+> **https://tmoganti.github.io/personal-finance-expense-analysis/spending_dashboard.html**
+
+To enable Pages on a fresh clone:
+
+1. Go to **Settings → Pages** on the repo.
+2. Under **Source**, pick **Deploy from a branch**.
+3. Select **main** / **/ (root)** and click **Save**.
+
+GitHub publishes the static site within ~1 minute. The dashboard pulls Chart.js from the public CDN, so no build pipeline is needed — every push to `main` updates the live page.
+
+## Dashboard layout (HTML)
 
 ```
-┌────────────────────────────────────────────────────────────────┐
-│   PERSONAL FINANCE DASHBOARD · Dec 2025 – Mar 2026             │
-├──────────┬──────────┬──────────────────────────────────────────┤
-│ MONTH    │ CATEGORY │ PAYMENT METHOD   (dropdown filters)      │
-├──────────┴──────────┴──────────────────────────────────────────┤
-│ TOTAL │ MONTHLY │ TRANS.  │ TOP        │ LARGEST              │
-│ SPEND │ AVG     │ COUNT   │ CATEGORY   │ TXN                  │
-├────────────────────────────┬───────────────────────────────────┤
-│  Spend by Category         │  Daily Spend Trend                │
-├────────────┬───────────────┴───────────┬───────────────────────┤
-│ Month-over │  Payment Method Share     │  Top 10 Merchants     │
-│ -Month     │  (Total vs Recurring)     │                       │
-├────────────┴───────────────────────────┴───────────────────────┤
-│  KEY INSIGHTS                                                  │
-└────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────┐
+│  SPENDING DASHBOARD · Tarun Moganti · Dec 2025 – Mar 2026  [tabs ▼] │
+├─────────────┬────────────┬─────────────┬─────────────────────────────┤
+│ TOTAL SPENT │ DISCOVER   │ BOFA CREDIT │ TOP CATEGORY                │
+├─────────────┴────────────┴─────────────┴─────────────────────────────┤
+│ 💡 Recurring baseline · One-off charges · Insight strip (per-month)  │
+├──────────────────────────────────┬───────────────────────────────────┤
+│ Spending by Category (donut)     │ Month-over-Month                  │
+│                                  │ (Total vs Recurring · 2-series)   │
+├──────────────────────────────────┼───────────────────────────────────┤
+│ Top 10 Merchants                 │ FICO Credit Score (637→651→694)   │
+├──────────────────────────────────┼───────────────────────────────────┤
+│ BofA Checking Balance (line)     │ Category Breakdown (horiz. bar)   │
+└──────────────────────────────────┴───────────────────────────────────┘
 ```
 
 ## How the interactivity works
 
-- The **Transactions** sheet holds every row as an Excel Table named `Transactions`.
-- The **Summary_Tables** sheet holds small lookup tables (one per chart)
-  driven by `SUMIFS` / `COUNTIFS` formulas that reference three filter
-  cells on the Dashboard:
-  - `Dashboard!B5` — Month filter (YearMonth e.g. `2026-01`)
-  - `Dashboard!E5` — Category filter
-  - `Dashboard!H5` — Payment Method filter
-  - When a filter = `"All"`, the formula passes `"<>"` as the criterion
-    (matches any non-blank) so the filter effectively disables itself.
-- Charts point at the summary ranges, so flipping any dropdown instantly
-  re-draws every chart and re-computes every KPI. Zero manual refresh.
-- The **Month-over-Month** chart is a 2-series clustered column —
-  **Total** (navy) next to **Recurring only** (orange) — so one-off
-  charges stop drowning out the baseline. This uses a separate
-  `SUMIFS(..., Transactions[IsOneOff], "No")` formula.
+**HTML dashboard** — the `ALL_TXN` array (regenerated from `expenses.csv` by
+`scripts/build_dashboard_html.py`) drives everything. Clicking a month tab
+calls `setMonth()` which re-filters the array and triggers `render()` to
+redraw all five Chart.js canvases plus the metric cards and insight strip.
+The Month-over-Month chart shows **Total** (navy) and **Recurring only**
+(orange) side by side, so one-off charges (USCIS, Summit, Eversource,
+Mint Mobile, Schoharie, Abercrombie) stop drowning out the baseline.
+
+**Excel dashboard** — the `Transactions` table holds every row; a small
+`Summary_Tables` sheet runs `SUMIFS` / `COUNTIFS` against three filter
+dropdowns on the dashboard (`Dashboard!B5` / `E5` / `H5`). Charts read from
+those summary ranges so the dashboard re-draws on any dropdown change.
+The Month-over-Month chart uses a separate
+`SUMIFS(..., Transactions[IsOneOff], "No")` for the recurring series.
+
+Both dashboards share the same source of truth (`expenses.csv`) and produce
+the same numbers — they're alternative presentation layers, not separate
+analyses.
 
 ## OSEMN steps covered in the notebook
 
@@ -123,6 +144,7 @@ rebuild from scratch.
 | `scripts/extract_pdfs.py` | Reads every bank/credit-card PDF in this folder, detects the format (Discover · BofA Visa · BofA Checking), and extracts purchase rows into a unified CSV. Discover categories are kept as-issued; BofA credit-card rows get `Uncategorized` for manual mapping. BofA checking statements are intentionally left as a stub — the deposit/debit layout is different and belongs in a separate parser. | `extracted_from_pdfs.csv` |
 | `scripts/clean_data.py` | Scrubs the raw CSV: trims headers, fixes 4 typo rows dated `2026-12-31` → `2025-12-31`, consolidates overlapping categories, flags one-off transactions, derives time features, assigns `TransactionID`. | `expenses.csv` |
 | `scripts/build_dashboard.py` | Builds the Excel-native dashboard via `openpyxl`. Structured table refs + `_xlfn.MAXIFS`. | `Personal_Finance_Dashboard.xlsx` |
+| `scripts/build_dashboard_html.py` | Reads `expenses.csv` and rewrites the JS data block in `spending_dashboard.html` (between `// __DATA_START__` / `// __DATA_END__` markers). Idempotent — safe to re-run after every `clean_data.py` update. | `spending_dashboard.html` |
 | `scripts/build_notebook.py` | Hand-rolls the Jupyter `.ipynb` with all 27 cells pre-executed and all figures embedded as base64 PNGs. | `Expense_Analysis_OSEMN.ipynb` + `figures/*.png` |
 | `scripts/render_preview.py` | Renders the single-image composite PNG preview of the dashboard for LinkedIn / slide decks. | `Dashboard_Preview.png` |
 
@@ -131,11 +153,12 @@ rebuild from scratch.
 Drop new statement PDFs next to the existing ones and re-run:
 
 ```bash
-python scripts/extract_pdfs.py       # PDFs → extracted_from_pdfs.csv
-python scripts/clean_data.py         # raw CSV → expenses.csv
-python scripts/build_dashboard.py    # expenses.csv → Excel dashboard
-python scripts/build_notebook.py
-python scripts/render_preview.py
+python scripts/extract_pdfs.py         # PDFs → extracted_from_pdfs.csv
+python scripts/clean_data.py           # raw CSV → expenses.csv
+python scripts/build_dashboard.py      # expenses.csv → Excel dashboard
+python scripts/build_dashboard_html.py # expenses.csv → HTML dashboard
+python scripts/build_notebook.py       # expenses.csv → Jupyter notebook
+python scripts/render_preview.py       # → Dashboard_Preview.png
 ```
 
 The column schema is the contract — as long as your feed has

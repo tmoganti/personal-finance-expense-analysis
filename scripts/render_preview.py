@@ -28,12 +28,24 @@ from matplotlib.gridspec import GridSpec
 plt.rcParams["text.usetex"] = False
 plt.rcParams["mathtext.default"] = "regular"
 
-HERE = Path(__file__).resolve().parent
-CSV  = HERE / "expenses.csv"
-OUT  = HERE / "Dashboard_Preview.png"
+ROOT = Path(__file__).resolve().parents[1]
+CSV  = ROOT / "expenses.csv"
+OUT  = ROOT / "Dashboard_Preview.png"
 
-NAVY, BLUE, SKY, ACCENT = "#1F4E78", "#2E75B6", "#5B9BD5", "#F79256"
-LIGHT, INK, GRAY, WHITE = "#DDEBF7", "#1F2937", "#6B7280", "#FFFFFF"
+# Palette mirrors spending_dashboard.html — cream background, ink-black title
+# band, terracotta accent. Keeps the README hero aesthetically aligned with the
+# live HTML deliverable.
+NAVY    = "#1a3a6e"   # deep blue, used for "Total" series
+ACCENT  = "#c8522a"   # terracotta, used for "Recurring" series
+ACCENT2 = "#1a9e6e"   # teal, used for highlights
+INK     = "#1a1814"   # near-black for title band & body text
+SURFACE = "#ffffff"   # KPI card surface
+BG      = "#f5f2ec"   # page background
+LIGHT   = "#f0ede6"   # subtle card border / band fill
+GRAY    = "#6b6760"
+WHITE   = "#ffffff"
+# Legacy aliases so the rest of the script reads naturally.
+BLUE, SKY = NAVY, "#dfe6f0"
 
 df = pd.read_csv(CSV, parse_dates=["Date"])
 

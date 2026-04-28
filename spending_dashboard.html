@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spending Dashboard — Tarun Moganti</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f5f2ec;
+    --surface: #fff;
+    --surface2: #f0ede6;
+    --ink: #1a1814;
+    --ink2: #6b6760;
+    --ink3: #9e9b96;
+    --accent: #c8522a;
+    --accent2: #2a5fc8;
+    --accent3: #1a9e6e;
+    --border: rgba(26,24,20,0.1);
+    --border2: rgba(26,24,20,0.06);
+    --serif: 'DM Serif Display', Georgia, serif;
+    --sans: 'DM Sans', sans-serif;
+    --r: 12px;
+    --r-sm: 6px;
+  }
+
+  html { font-size: 16px; }
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page { max-width: 1080px; margin: 0 auto; padding: 3rem 2rem 5rem; }
+
+  .header { margin-bottom: 3.5rem; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1.5rem; }
+  .header-left h1 { font-family: var(--serif); font-size: clamp(2.4rem, 5vw, 3.6rem); font-weight: 400; line-height: 1.05; color: var(--ink); }
+  .header-left h1 em { font-style: italic; color: var(--accent); }
+  .header-left p { margin-top: 0.5rem; font-size: 0.875rem; color: var(--ink2); font-weight: 300; letter-spacing: 0.02em; }
+  .header-right { display: flex; gap: 6px; flex-wrap: wrap; }
+  .tab-btn {
+    font-family: var(--sans);
+    font-size: 0.8125rem;
+    font-weight: 400;
+    padding: 7px 16px;
+    border-radius: 100px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--ink2);
+    cursor: pointer;
+    transition: all 0.18s ease;
+    letter-spacing: 0.01em;
+  }
+  .tab-btn:hover { background: var(--surface2); color: var(--ink); }
+  .tab-btn.active { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+  .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 12px; }
+  @media (max-width: 720px) { .metrics { grid-template-columns: repeat(2, 1fr); } }
+  .metric-card {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: var(--r);
+    padding: 1.25rem 1.5rem 1.4rem;
+    position: relative;
+    overflow: hidden;
+    transition: box-shadow 0.2s ease;
+  }
+  .metric-card:hover { box-shadow: 0 4px 20px rgba(26,24,20,0.08); }
+  .metric-card.accent { background: var(--ink); }
+  .metric-card.accent .m-label { color: rgba(255,255,255,0.5); }
+  .metric-card.accent .m-value { color: #fff; }
+  .metric-card.accent .m-sub { color: rgba(255,255,255,0.4); }
+  .m-label { font-size: 0.725rem; color: var(--ink3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.5rem; font-weight: 500; }
+  .m-value { font-family: var(--serif); font-size: 2rem; font-weight: 400; line-height: 1; color: var(--ink); }
+  .m-sub { font-size: 0.7rem; color: var(--ink3); margin-top: 0.4rem; font-weight: 300; }
+  .m-tag {
+    position: absolute;
+    top: 1.1rem; right: 1.1rem;
+    font-size: 0.675rem;
+    font-weight: 500;
+    padding: 3px 8px;
+    border-radius: 100px;
+    background: var(--surface2);
+    color: var(--ink2);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .insight-strip {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-left: 3px solid var(--accent);
+    border-radius: var(--r);
+    padding: 0.85rem 1.25rem;
+    margin-bottom: 2rem;
+    font-size: 0.8rem;
+    color: var(--ink2);
+    line-height: 1.55;
+    font-weight: 300;
+  }
+  .insight-strip strong { color: var(--ink); font-weight: 500; }
+  .insight-strip .pill {
+    display: inline-block;
+    padding: 1px 7px;
+    border-radius: 100px;
+    background: var(--surface2);
+    font-size: 0.7rem;
+    color: var(--ink2);
+    margin: 0 2px;
+    font-weight: 500;
+  }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  .grid-3 { display: grid; grid-template-columns: 2fr 1fr; gap: 12px; margin-bottom: 12px; }
+  @media (max-width: 700px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+
+  .chart-card {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: var(--r);
+    padding: 1.5rem;
+    transition: box-shadow 0.2s ease;
+  }
+  .chart-card:hover { box-shadow: 0 4px 20px rgba(26,24,20,0.06); }
+  .card-title {
+    font-size: 0.7rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    color: var(--ink3);
+    margin-bottom: 1.25rem;
+  }
+  .canvas-wrap { position: relative; width: 100%; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 8px 14px; margin-bottom: 1rem; }
+  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 0.75rem; color: var(--ink2); font-weight: 300; }
+  .legend-dot { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
+
+  .balance-big {
+    background: var(--ink);
+    border-radius: var(--r);
+    padding: 1.5rem;
+    color: #fff;
+    margin-bottom: 12px;
+  }
+  .balance-big .card-title { color: rgba(255,255,255,0.4); }
+
+  .fico-card {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: var(--r);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .fico-score {
+    font-family: var(--serif);
+    font-size: 4.5rem;
+    line-height: 1;
+    color: var(--accent3);
+    margin: 0.75rem 0 0.25rem;
+  }
+  .fico-bar-bg { height: 6px; background: var(--surface2); border-radius: 3px; margin-top: 0.75rem; overflow: hidden; }
+  .fico-bar-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, #e24b4b 0%, #f0a020 33%, #1a9e6e 66%, #1a9e6e 100%); }
+  .fico-pointer-row { display: flex; justify-content: space-between; font-size: 0.65rem; color: var(--ink3); margin-top: 4px; }
+
+  .merch-list { list-style: none; }
+  .merch-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--border2);
+    font-size: 0.8375rem;
+  }
+  .merch-item:last-child { border-bottom: none; }
+  .merch-rank { font-family: var(--serif); font-size: 1.1rem; color: var(--ink3); width: 20px; flex-shrink: 0; font-style: italic; }
+  .merch-name { flex: 1; font-weight: 400; }
+  .merch-cat { font-size: 0.675rem; color: var(--ink3); font-weight: 300; }
+  .merch-bar-wrap { width: 80px; height: 4px; background: var(--surface2); border-radius: 2px; flex-shrink: 0; }
+  .merch-bar { height: 100%; border-radius: 2px; background: var(--accent); }
+  .merch-amt { font-weight: 500; font-size: 0.8rem; min-width: 52px; text-align: right; }
+
+  .footer { margin-top: 3rem; text-align: center; font-size: 0.7rem; color: var(--ink3); font-weight: 300; }
+  .footer strong { font-weight: 500; color: var(--ink2); }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .metric-card, .chart-card, .balance-big, .fico-card, .insight-strip {
+    animation: fadeUp 0.45s ease both;
+  }
+  .metric-card:nth-child(1) { animation-delay: 0.05s; }
+  .metric-card:nth-child(2) { animation-delay: 0.10s; }
+  .metric-card:nth-child(3) { animation-delay: 0.15s; }
+  .metric-card:nth-child(4) { animation-delay: 0.20s; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="header">
+    <div class="header-left">
+      <h1>Spending<br><em>Dashboard</em></h1>
+      <p>Tarun Moganti &nbsp;·&nbsp; Dec 2025 – Mar 2026 &nbsp;·&nbsp; Bank of America &amp; Discover</p>
+    </div>
+    <div class="header-right">
+      <button class="tab-btn active" onclick="setMonth('all',this)">All</button>
+      <button class="tab-btn" onclick="setMonth('dec',this)">December</button>
+      <button class="tab-btn" onclick="setMonth('jan',this)">January</button>
+      <button class="tab-btn" onclick="setMonth('feb',this)">February</button>
+      <button class="tab-btn" onclick="setMonth('mar',this)">March</button>
+    </div>
+  </header>
+
+  <div class="metrics" id="metrics"></div>
+
+  <div class="insight-strip" id="insight-strip"></div>
+
+  <div class="grid-2">
+    <div class="chart-card">
+      <div class="card-title">Spending by category</div>
+      <div class="legend" id="cat-legend"></div>
+      <div class="canvas-wrap" style="height:260px;"><canvas id="catChart" role="img" aria-label="Donut chart of spending by category"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="card-title">Month over month — total vs recurring</div>
+      <div class="legend">
+        <div class="legend-item"><span class="legend-dot" style="background:#1a3a6e"></span>Total spend</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#c8522a"></span>Recurring only (one-offs stripped)</div>
+      </div>
+      <div class="canvas-wrap" style="height:260px;"><canvas id="momChart" role="img" aria-label="Grouped bar chart of monthly total vs recurring spending"></canvas></div>
+    </div>
+  </div>
+
+  <div class="grid-3">
+    <div class="chart-card">
+      <div class="card-title">Top merchants</div>
+      <ul class="merch-list" id="merchant-list"></ul>
+    </div>
+    <div class="fico-card">
+      <div>
+        <div class="card-title">FICO credit score</div>
+        <div class="fico-score" id="fico-val">694</div>
+        <div style="font-size:0.8rem;color:var(--ink2);font-weight:300;" id="fico-label">Good</div>
+      </div>
+      <div>
+        <div class="fico-bar-bg"><div class="fico-bar-fill"></div></div>
+        <div class="fico-pointer-row"><span>300</span><span>Poor</span><span>Fair</span><span>Good</span><span>850</span></div>
+        <div style="margin-top:1rem;font-size:0.7rem;color:var(--ink3);line-height:1.5;">
+          Based on TransUnion data via Discover.<br>
+          Jan: 637 &nbsp;·&nbsp; Feb: 651 &nbsp;·&nbsp; Mar: <strong style="color:var(--accent3)">694</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="balance-big">
+      <div class="card-title">Bank of america — checking balance</div>
+      <div style="font-family:var(--serif);font-size:3rem;color:#fff;line-height:1;margin-bottom:1.25rem;" id="bal-display">$691.60</div>
+      <div class="canvas-wrap" style="height:140px;"><canvas id="balChart" role="img" aria-label="Line chart of BofA checking account balance over time"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="card-title">Category breakdown</div>
+      <div class="canvas-wrap" id="cat-bar-wrap" style="height:300px;"><canvas id="catBar" role="img" aria-label="Horizontal bar chart of spending by category"></canvas></div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <p>Generated from statements dated Dec 2025 – Mar 2026. Data extracted from <strong>Discover It (8199)</strong>, <strong>BofA Credit Card (8995)</strong>, and <strong>Bank of America Checking (8580)</strong>. Categories &amp; one-off flags match the project's <code>expenses.csv</code> taxonomy.</p>
+  </footer>
+</div>
+
+<script>
+// ─────────────────────────────────────────────────────────────
+// Categories (15) match the project's consolidated taxonomy.
+// `oneoff: true` mirrors the project's IsOneOff=Yes flag.
+// Data block below is regenerated by scripts/build_dashboard_html.py
+// ─────────────────────────────────────────────────────────────
+// __DATA_START__
+const ALL_TXN = [
+  // ── December 2025 ──
+  {m:'dec',card:'discover',merchant:'Adidas',cat:'Shopping',amt:105.00},
+  {m:'dec',card:'discover',merchant:'Desi Chowrastha',cat:'Restaurants',amt:78.07},
+  {m:'dec',card:'discover',merchant:'Nike.com',cat:'Shopping',amt:165.00},
+  {m:'dec',card:'discover',merchant:'Milkshake Lovers',cat:'Restaurants',amt:7.74},
+  {m:'dec',card:'discover',merchant:'Desi Chowrastha',cat:'Restaurants',amt:40.12},
+  {m:'dec',card:'discover',merchant:'Desi Chowrastha',cat:'Restaurants',amt:14.09},
+  {m:'dec',card:'discover',merchant:'Whole Foods',cat:'Groceries',amt:13.77},
+  {m:'dec',card:'bofa',merchant:'Great Clips',cat:'Personal Care',amt:23.00},
+  {m:'dec',card:'bofa',merchant:'Trinity Realty II',cat:'Housing',amt:15.00},
+  {m:'dec',card:'bofa',merchant:'75 State St Garage',cat:'Transport',amt:18.00},
+  {m:'dec',card:'discover',merchant:'Maharaja',cat:'Restaurants',amt:213.90},
+  {m:'dec',card:'bofa',merchant:'OpenAI ChatGPT',cat:'Subscriptions',amt:20.00},
+  // ── January 2026  (one-offs flagged) ──
+  {m:'jan',card:'bofa',merchant:'7-Eleven',cat:'Gasoline',amt:4.00},
+  {m:'jan',card:'bofa',merchant:'Nouria Store',cat:'Gasoline',amt:25.95},
+  {m:'jan',card:'bofa',merchant:'Visafoto.com',cat:'Subscriptions',amt:9.00},
+  {m:'jan',card:'bofa',merchant:'Staples',cat:'Office Supplies',amt:2.74},
+  {m:'jan',card:'bofa',merchant:'Howe Street Superette',cat:'Groceries',amt:7.35},
+  {m:'jan',card:'bofa',merchant:'Desi Chowrastha',cat:'Restaurants',amt:8.67},
+  {m:'jan',card:'bofa',merchant:'Desi Chowrastha',cat:'Restaurants',amt:21.69},
+  {m:'jan',card:'bofa',merchant:'Starbucks',cat:'Coffee',amt:6.13},
+  {m:'jan',card:'bofa',merchant:'Patel Brothers',cat:'Groceries',amt:16.03},
+  {m:'jan',card:'bofa',merchant:'Walmart',cat:'Shopping',amt:19.68},
+  {m:'jan',card:'bofa',merchant:'Nouria Store',cat:'Gasoline',amt:16.21},
+  {m:'jan',card:'bofa',merchant:'Chipotle',cat:'Restaurants',amt:13.48},
+  {m:'jan',card:'bofa',merchant:'Chipotle',cat:'Restaurants',amt:13.48},
+  {m:'jan',card:'bofa',merchant:'USCIS I-765 Fee',cat:'Government',amt:470.00,oneoff:true},
+  {m:'jan',card:'bofa',merchant:'Staples',cat:'Office Supplies',amt:0.90},
+  {m:'jan',card:'bofa',merchant:'Staples',cat:'Office Supplies',amt:0.60},
+  {m:'jan',card:'bofa',merchant:'Staples',cat:'Office Supplies',amt:0.60},
+  {m:'jan',card:'bofa',merchant:'Staples',cat:'Office Supplies',amt:0.60},
+  {m:'jan',card:'bofa',merchant:'Staples',cat:'Office Supplies',amt:1.80},
+  {m:'jan',card:'bofa',merchant:'Vpdfhouse',cat:'Subscriptions',amt:1.95},
+  {m:'jan',card:'bofa',merchant:'Desi Chowrastha',cat:'Restaurants',amt:2.16},
+  {m:'jan',card:'bofa',merchant:'Summit One Vanderbilt NY',cat:'Entertainment',amt:251.51,oneoff:true},
+  {m:'jan',card:'discover',merchant:'Gas Station',cat:'Gasoline',amt:23.37},
+  {m:'jan',card:'bofa',merchant:'One Vanderbilt NYC',cat:'Shopping',amt:25.00},
+  {m:'jan',card:'bofa',merchant:'Foodcourt NYC',cat:'Restaurants',amt:18.40},
+  {m:'jan',card:'bofa',merchant:'MTA NYC',cat:'Transport',amt:3.00},
+  {m:'jan',card:'bofa',merchant:'MTA NYC',cat:'Transport',amt:3.00},
+  {m:'jan',card:'bofa',merchant:'MTA NYC',cat:'Transport',amt:3.00},
+  {m:'jan',card:'bofa',merchant:'Summit One Vanderbilt NY',cat:'Entertainment',amt:10.89,oneoff:true},
+  {m:'jan',card:'bofa',merchant:'Starbucks NYC',cat:'Coffee',amt:26.53},
+  {m:'jan',card:'bofa',merchant:'Starbucks NYC',cat:'Coffee',amt:7.02},
+  {m:'jan',card:'bofa',merchant:'MTA NYC',cat:'Transport',amt:3.00},
+  {m:'jan',card:'discover',merchant:'Desi Chowrastha',cat:'Restaurants',amt:52.05},
+  {m:'jan',card:'bofa',merchant:'Nouria Store',cat:'Gasoline',amt:22.48},
+  {m:'jan',card:'discover',merchant:'Pheasant Lane',cat:'Restaurants',amt:10.62},
+  {m:'jan',card:'discover',merchant:'ExxonMobil',cat:'Gasoline',amt:15.57},
+  {m:'jan',card:'discover',merchant:'Dunkin',cat:'Restaurants',amt:2.86},
+  {m:'jan',card:'discover',merchant:'Gong Cha',cat:'Restaurants',amt:8.71},
+  {m:'jan',card:'discover',merchant:'Starbucks',cat:'Coffee',amt:11.27},
+  {m:'jan',card:'bofa',merchant:'Apple Cinemas Merrimack NH',cat:'Entertainment',amt:42.00},
+  {m:'jan',card:'bofa',merchant:'Logan Parking',cat:'Transport',amt:26.00},
+  {m:'jan',card:'bofa',merchant:'Jewelers Workbench',cat:'Shopping',amt:25.00},
+  {m:'jan',card:'bofa',merchant:'Nouria Store',cat:'Gasoline',amt:12.10},
+  {m:'jan',card:'bofa',merchant:'Gourmet India',cat:'Restaurants',amt:15.93},
+  {m:'jan',card:'bofa',merchant:'Gourmet India',cat:'Restaurants',amt:7.44},
+  {m:'jan',card:'bofa',merchant:'Patel Brothers',cat:'Groceries',amt:12.43},
+  {m:'jan',card:'discover',merchant:'Cumberland Farms',cat:'Gasoline',amt:36.90},
+  {m:'jan',card:'bofa',merchant:'Patel Brothers',cat:'Groceries',amt:49.45},
+  {m:'jan',card:'bofa',merchant:'Macys',cat:'Shopping',amt:80.00},
+  {m:'jan',card:'bofa',merchant:'Abercrombie & Fitch',cat:'Shopping',amt:165.00,oneoff:true},
+  {m:'jan',card:'discover',merchant:'Nouria Store',cat:'Gasoline',amt:11.99},
+  {m:'jan',card:'bofa',merchant:'Desi Chowrastha',cat:'Restaurants',amt:60.73},
+  {m:'jan',card:'bofa',merchant:'Target',cat:'Shopping',amt:6.56},
+  {m:'jan',card:'bofa',merchant:'Eversource Utility Bill',cat:'Utilities',amt:227.46,oneoff:true},
+  {m:'jan',card:'bofa',merchant:'Costco',cat:'Groceries',amt:37.36},
+  {m:'jan',card:'bofa',merchant:'American Eagle',cat:'Shopping',amt:23.98},
+  {m:'jan',card:'bofa',merchant:'Brooks Brothers',cat:'Shopping',amt:69.94},
+  {m:'jan',card:'bofa',merchant:'Vpdfhouse',cat:'Subscriptions',amt:39.00},
+  {m:'jan',card:'bofa',merchant:'Nouria Store',cat:'Gasoline',amt:20.09},
+  {m:'jan',card:'bofa',merchant:'Dunkin',cat:'Coffee',amt:18.84},
+  {m:'jan',card:'bofa',merchant:'Chipotle',cat:'Restaurants',amt:10.33},
+  {m:'jan',card:'bofa',merchant:'Patel Brothers',cat:'Groceries',amt:16.11},
+  {m:'jan',card:'bofa',merchant:'Patel Brothers',cat:'Groceries',amt:13.62},
+  // ── February 2026 ──
+  {m:'feb',card:'discover',merchant:'YMCA',cat:'Services',amt:77.96},
+  {m:'feb',card:'discover',merchant:'ExxonMobil',cat:'Gasoline',amt:11.21},
+  {m:'feb',card:'discover',merchant:'OpenAI ChatGPT',cat:'Subscriptions',amt:20.00},
+  {m:'feb',card:'discover',merchant:'Howe Street Superette',cat:'Groceries',amt:8.85},
+  {m:'feb',card:'discover',merchant:'Dunkin',cat:'Coffee',amt:4.18},
+  {m:'feb',card:'bofa',merchant:'Uber Trip',cat:'Transport',amt:11.15},
+  {m:'feb',card:'bofa',merchant:'Costco',cat:'Groceries',amt:55.95},
+  {m:'feb',card:'discover',merchant:'Tripoli\'s',cat:'Restaurants',amt:8.50},
+  {m:'feb',card:'bofa',merchant:'Uber Trip',cat:'Transport',amt:13.93},
+  {m:'feb',card:'bofa',merchant:'Dunkin',cat:'Coffee',amt:20.69},
+  {m:'feb',card:'bofa',merchant:'Staples',cat:'Office Supplies',amt:5.45},
+  {m:'feb',card:'bofa',merchant:'Shaws',cat:'Groceries',amt:29.99},
+  {m:'feb',card:'bofa',merchant:'Costco',cat:'Groceries',amt:74.53},
+  {m:'feb',card:'bofa',merchant:'Barnes & Noble',cat:'Shopping',amt:7.32},
+  {m:'feb',card:'bofa',merchant:'Patel Brothers',cat:'Groceries',amt:40.84},
+  {m:'feb',card:'bofa',merchant:'Nouria Store',cat:'Gasoline',amt:24.93},
+  {m:'feb',card:'bofa',merchant:'Patel Brothers',cat:'Groceries',amt:36.96},
+  {m:'feb',card:'bofa',merchant:'Starbucks',cat:'Coffee',amt:6.78},
+  {m:'feb',card:'bofa',merchant:'Whole Foods',cat:'Groceries',amt:69.77},
+  {m:'feb',card:'bofa',merchant:'Tropical Smoothie Cafe',cat:'Restaurants',amt:8.34},
+  {m:'feb',card:'bofa',merchant:'Uber Trip',cat:'Transport',amt:9.56},
+  {m:'feb',card:'bofa',merchant:'7-Eleven',cat:'Gasoline',amt:9.87},
+  {m:'feb',card:'bofa',merchant:'Nouria Store',cat:'Gasoline',amt:25.03},
+  {m:'feb',card:'bofa',merchant:'Dunkin',cat:'Coffee',amt:4.65},
+  {m:'feb',card:'bofa',merchant:'Desi Chowrastha',cat:'Restaurants',amt:1.08},
+  {m:'feb',card:'bofa',merchant:'Starbucks',cat:'Coffee',amt:6.78},
+  {m:'feb',card:'bofa',merchant:'Patel Brothers',cat:'Groceries',amt:12.95},
+  {m:'feb',card:'bofa',merchant:'Desi Chowrastha',cat:'Restaurants',amt:8.67},
+  {m:'feb',card:'bofa',merchant:'Mint Mobile',cat:'Subscriptions',amt:267.12,oneoff:true},
+  {m:'feb',card:'bofa',merchant:'Schoharie Town Court',cat:'Fines/Legal',amt:168.00,oneoff:true},
+  {m:'feb',card:'bofa',merchant:'Schoharie Court Fee',cat:'Fines/Legal',amt:5.02,oneoff:true},
+  {m:'feb',card:'bofa',merchant:'Starbucks',cat:'Coffee',amt:6.78},
+  {m:'feb',card:'bofa',merchant:'Pressed Cafe',cat:'Restaurants',amt:13.02},
+  {m:'feb',card:'bofa',merchant:'Eversource Utility Bill',cat:'Utilities',amt:232.61,oneoff:true},
+  {m:'feb',card:'bofa',merchant:'Google One',cat:'Subscriptions',amt:7.49},
+  {m:'feb',card:'discover',merchant:'OpenAI ChatGPT',cat:'Subscriptions',amt:20.00},
+  {m:'feb',card:'discover',merchant:'McDonald\'s',cat:'Restaurants',amt:12.60},
+  // ── March 2026 ──
+  {m:'mar',card:'discover',merchant:'Uber Trip',cat:'Transport',amt:21.38},
+  {m:'mar',card:'discover',merchant:'YMCA',cat:'Services',amt:29.00},
+  {m:'mar',card:'discover',merchant:'Uber Trip',cat:'Transport',amt:30.90},
+  {m:'mar',card:'discover',merchant:'Great Clips',cat:'Personal Care',amt:24.00},
+  {m:'mar',card:'bofa',merchant:'Patel Brothers',cat:'Groceries',amt:43.57},
+  {m:'mar',card:'bofa',merchant:'Costco',cat:'Groceries',amt:72.23},
+  {m:'mar',card:'bofa',merchant:'Chipotle',cat:'Restaurants',amt:14.00},
+  {m:'mar',card:'bofa',merchant:'Patel Brothers',cat:'Groceries',amt:8.65},
+  {m:'mar',card:'bofa',merchant:'Costco',cat:'Shopping',amt:30.99},
+];
+// __DATA_END__
+
+// Project's 15-cat color palette
+const CAT_COLORS = {
+  'Restaurants':'#c8522a','Groceries':'#1a9e6e','Shopping':'#2a5fc8',
+  'Gasoline':'#ba7517','Utilities':'#a32d2d','Entertainment':'#7f77dd',
+  'Transport':'#d4537e','Coffee':'#8b5a2b','Subscriptions':'#888780',
+  'Services':'#3b6d11','Personal Care':'#185fa5','Office Supplies':'#a89668',
+  'Government':'#4a4a4a','Fines/Legal':'#6b2929','Housing':'#5f8c5f',
+};
+
+const BOA_BALANCE = [
+  {label:'Dec 24', val:846.96},
+  {label:'Jan 23', val:663.01},
+  {label:'Feb 20', val:115.94},
+  {label:'Mar 24', val:691.60},
+];
+
+let activeMonth = 'all';
+let charts = {};
+
+function fmt(n) { return '$' + n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function fmtK(n) { return n >= 1000 ? '$' + (n/1000).toFixed(1)+'k' : '$'+Math.round(n); }
+function txns(m) { return m === 'all' ? ALL_TXN : ALL_TXN.filter(t => t.m === m); }
+function sumAmt(arr) { return arr.reduce((s,t)=>s+t.amt,0); }
+
+function setMonth(m, el) {
+  activeMonth = m;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  render();
+}
+
+function render() {
+  const data = txns(activeMonth);
+  const total      = sumAmt(data);
+  const oneoffSum  = sumAmt(data.filter(t => t.oneoff));
+  const recurring  = total - oneoffSum;
+  const oneoffPct  = total ? (oneoffSum / total * 100) : 0;
+  const disc       = sumAmt(data.filter(t=>t.card==='discover'));
+  const bofa       = sumAmt(data.filter(t=>t.card==='bofa'));
+  const catMap     = data.reduce((a,t)=>{a[t.cat]=(a[t.cat]||0)+t.amt;return a;},{});
+  const topCat     = Object.entries(catMap).sort((a,b)=>b[1]-a[1])[0];
+
+  // ── Metrics ──
+  const periodLabel = activeMonth === 'all' ? 'Dec 2025 – Mar 2026'
+    : ({dec:'December 2025',jan:'January 2026',feb:'February 2026',mar:'March 2026'}[activeMonth]);
+  document.getElementById('metrics').innerHTML = `
+    <div class="metric-card accent">
+      <div class="m-label">Total spent</div>
+      <div class="m-value">${fmt(total)}</div>
+      <div class="m-sub">${periodLabel}</div>
+    </div>
+    <div class="metric-card">
+      <div class="m-tag">Discover</div>
+      <div class="m-label">Discover ·8199</div>
+      <div class="m-value" style="font-size:1.6rem;">${fmt(disc)}</div>
+      <div class="m-sub">0% APR promo</div>
+    </div>
+    <div class="metric-card">
+      <div class="m-tag">BofA Credit</div>
+      <div class="m-label">BofA Credit ·8995</div>
+      <div class="m-value" style="font-size:1.6rem;">${fmt(bofa)}</div>
+      <div class="m-sub">18.49% APR</div>
+    </div>
+    <div class="metric-card">
+      <div class="m-label">Top category</div>
+      <div class="m-value" style="font-size:1.4rem;margin-top:0.15rem;">${topCat?topCat[0]:'—'}</div>
+      <div class="m-sub">${topCat?fmt(topCat[1]):''}</div>
+    </div>
+  `;
+
+  // ── Insight strip (recurring vs one-off) ──
+  const oneoffCount = data.filter(t=>t.oneoff).length;
+  let stripHtml;
+  if (oneoffCount === 0) {
+    stripHtml = `<strong>No one-off charges this period.</strong> The full ${fmt(total)} is recurring baseline spend — these are your everyday habits, not lump-sum hits.`;
+  } else {
+    stripHtml = `
+      <strong>Recurring baseline ${fmt(recurring)}</strong>
+      <span class="pill">${(100-oneoffPct).toFixed(1)}%</span>
+      &nbsp;·&nbsp;
+      <strong>One-off charges ${fmt(oneoffSum)}</strong>
+      <span class="pill">${oneoffPct.toFixed(1)}% across ${oneoffCount} txn${oneoffCount>1?'s':''}</span>
+      &nbsp;—&nbsp;
+      stripping USCIS, Summit, Eversource, Mint Mobile, Schoharie &amp; the Abercrombie splurge gives the truer read on monthly habits.
+    `;
+  }
+  document.getElementById('insight-strip').innerHTML = stripHtml;
+
+  // ── Donut: spend by category ──
+  const catEntries = Object.entries(catMap).sort((a,b)=>b[1]-a[1]);
+  document.getElementById('cat-legend').innerHTML = catEntries.slice(0,6).map(([l,v])=>
+    `<div class="legend-item"><span class="legend-dot" style="background:${CAT_COLORS[l]||'#888'}"></span>${l}</div>`
+  ).join('');
+
+  if (charts.cat) charts.cat.destroy();
+  charts.cat = new Chart(document.getElementById('catChart'), {
+    type:'doughnut',
+    data:{labels:catEntries.map(e=>e[0]),datasets:[{data:catEntries.map(e=>+e[1].toFixed(2)),backgroundColor:catEntries.map(e=>CAT_COLORS[e[0]]||'#888'),borderWidth:0,hoverOffset:6}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'70%',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` ${ctx.label}: ${fmt(ctx.parsed)}`}}}}
+  });
+
+  // ── MoM bar: Total vs Recurring (project's signature chart) ──
+  if (charts.mom) charts.mom.destroy();
+  const months = ['dec','jan','feb','mar'];
+  const monthLabels = ['Dec','Jan','Feb','Mar'];
+  const totalByMonth = months.map(mo => +sumAmt(ALL_TXN.filter(t=>t.m===mo)).toFixed(2));
+  const recurByMonth = months.map(mo => +sumAmt(ALL_TXN.filter(t=>t.m===mo && !t.oneoff)).toFixed(2));
+  charts.mom = new Chart(document.getElementById('momChart'), {
+    type:'bar',
+    data:{
+      labels:monthLabels,
+      datasets:[
+        {label:'Total',data:totalByMonth,backgroundColor:'#1a3a6e',borderRadius:4,borderSkipped:false},
+        {label:'Recurring',data:recurByMonth,backgroundColor:'#c8522a',borderRadius:4,borderSkipped:false}
+      ]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${fmt(ctx.parsed.y)}`}}},scales:{x:{grid:{display:false},ticks:{color:'#9e9b96',font:{size:11}}},y:{grid:{color:'rgba(26,24,20,0.05)'},ticks:{callback:v=>fmtK(v),color:'#9e9b96',font:{size:10}}}}}
+  });
+
+  // ── Top merchants ──
+  const mMap = data.reduce((a,t)=>{a[t.merchant]=(a[t.merchant]||0)+t.amt;return a;},{});
+  const mCatMap = data.reduce((a,t)=>{a[t.merchant]=t.cat;return a;},{});
+  const topM = Object.entries(mMap).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  const maxAmt = topM[0]?topM[0][1]:1;
+  document.getElementById('merchant-list').innerHTML = topM.map(([name,amt],i)=>`
+    <li class="merch-item">
+      <span class="merch-rank">${i+1}</span>
+      <span class="merch-name">${name}<br><span class="merch-cat">${mCatMap[name]||''}</span></span>
+      <span class="merch-bar-wrap"><span class="merch-bar" style="width:${(amt/maxAmt*100).toFixed(1)}%"></span></span>
+      <span class="merch-amt">${fmt(amt)}</span>
+    </li>
+  `).join('');
+
+  // ── BofA balance display (always shows latest) ──
+  document.getElementById('bal-display').textContent = fmt(BOA_BALANCE[BOA_BALANCE.length-1].val);
+
+  if (!charts.bal) {
+    charts.bal = new Chart(document.getElementById('balChart'), {
+      type:'line',
+      data:{
+        labels:BOA_BALANCE.map(b=>b.label),
+        datasets:[{
+          data:BOA_BALANCE.map(b=>b.val),
+          borderColor:'rgba(255,255,255,0.8)',
+          backgroundColor:'rgba(255,255,255,0.07)',
+          fill:true,tension:0.4,
+          pointBackgroundColor:'#fff',
+          pointRadius:4,pointHoverRadius:6,borderWidth:2
+        }]
+      },
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>fmt(ctx.parsed.y)}}},scales:{x:{grid:{display:false},ticks:{color:'rgba(255,255,255,0.45)',font:{size:10}}},y:{grid:{color:'rgba(255,255,255,0.06)'},ticks:{callback:v=>fmtK(v),color:'rgba(255,255,255,0.45)',font:{size:10}}}}}
+    });
+  }
+
+  // ── Category horizontal bar ──
+  if (charts.catBar) charts.catBar.destroy();
+  const catB = Object.entries(catMap).sort((a,b)=>b[1]-a[1]);
+  const cbH = Math.max(280, catB.length * 32 + 60);
+  document.getElementById('cat-bar-wrap').style.height = cbH + 'px';
+  charts.catBar = new Chart(document.getElementById('catBar'), {
+    type:'bar',
+    data:{labels:catB.map(e=>e[0]),datasets:[{data:catB.map(e=>+e[1].toFixed(2)),backgroundColor:catB.map(e=>CAT_COLORS[e[0]]||'#888'),borderRadius:4,borderSkipped:false}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>fmt(ctx.parsed.x)}}},scales:{x:{grid:{color:'rgba(26,24,20,0.05)'},ticks:{callback:v=>fmtK(v),color:'#9e9b96',font:{size:10}}},y:{grid:{display:false},ticks:{color:'#6b6760',font:{size:11}}}}}
+  });
+}
+
+render();
+</script>
+</body>
+</html>
