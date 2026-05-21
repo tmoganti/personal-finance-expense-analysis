@@ -20,20 +20,30 @@ Supported formats
    No category is given; set Category = "Uncategorized" so the analyst
    can backfill (e.g. via a manual merchant→category lookup).
 
-3. BofA SafeBalance Checking statements  ->  eStmt_2026-01-23.pdf etc.
-   These are deposit + debit-card account statements with a very
-   different layout (deposits vs. withdrawals vs. card purchases). They
-   are intentionally *not* parsed here — a future iteration can add a
-   dedicated parser. We log and skip them so nothing is silently lost.
+3. BofA SafeBalance Checking statements  ->  eStmt_2026-01-23.pdf,
+   eStmt_2026-02-20.pdf, eStmt_2026-03-24.pdf
+   Format: page 1 carries an "Account summary" block with labelled
+     Beginning balance on <Month D, YYYY>  $<amount>
+     Ending balance on <Month D, YYYY>     $<amount>
+   plus Deposits / ATM-debit subtractions / Other subtractions / Service
+   fee totals. We extract the period balances and cash-flow totals into
+   bofa_balance.csv — the balance time series powers the dashboard's
+   checking-balance line chart, and a reconciliation check confirms
+   begin + deposits - withdrawals - fees == end for every statement.
 
 Output
 ------
-  extracted_from_pdfs.csv      — one row per purchase, same schema as expenses.csv
-                                 (pre-clean_data: Date, Description, Category,
-                                 Amount, Payment Method)
+  extracted_from_pdfs.csv      — one row per credit-card purchase, same
+                                 schema as expenses.csv (pre-clean_data:
+                                 Date, Description, Category, Amount,
+                                 Payment Method)
+  bofa_balance.csv             — one row per checking-balance observation
+                                 (Date, Balance, Deposits, Withdrawals,
+                                 ServiceFees, SourceStatement)
 
-This file feeds the same downstream pipeline (clean_data.py can concat
-it with any manually-tracked CSV, or it can be used standalone).
+extracted_from_pdfs.csv feeds the same downstream pipeline (clean_data.py
+can concat it with any manually-tracked CSV, or use it standalone).
+bofa_balance.csv is consumed directly by build_dashboard_html.py.
 """
 from pathlib import Path
 import re
@@ -41,11 +51,12 @@ import pdfplumber
 import pandas as pd
 
 # ------------------------------------------------------------------
-# Paths
+# Paths — derived from the script location so the pipeline is portable
+# (scripts/ sits one level under the project root, alongside the PDFs).
 # ------------------------------------------------------------------
-WORKSPACE = Path("/sessions/bold-peaceful-clarke/mnt/Personal Finance and Expense Analysis")
-HERE      = Path(__file__).resolve().parent
-OUT_CSV   = HERE / "extracted_from_pdfs.csv"
+ROOT        = Path(__file__).resolve().parents[1]
+OUT_CSV     = ROOT / "extracted_from_pdfs.csv"
+BALANCE_CSV = ROOT / "bofa_balance.csv"
 
 # ------------------------------------------------------------------
 # Helpers
@@ -235,6 +246,110 @@ def _parse_bofa_period(page_text: str) -> tuple[pd.Timestamp, pd.Timestamp]:
 
 
 # ------------------------------------------------------------------
+# Parser: BofA SafeBalance Checking
+# ------------------------------------------------------------------
+# Account summary block on page 1, e.g.:
+#   Beginning balance on December 24, 2025 $846.96
+#   Deposits and other additions 1,120.01
+#   ATM and debit card subtractions -355.16
+#   Other subtractions -948.80
+#   Service fees -0.00
+#   Ending balance on January 23, 2026 $663.01
+BEGIN_BAL_RX = re.compile(r"Beginning balance on ([A-Z][a-z]+ \d{1,2}, \d{4})\s+\$([\d,]+\.\d{2})")
+END_BAL_RX   = re.compile(r"Ending balance on ([A-Z][a-z]+ \d{1,2}, \d{4})\s+\$([\d,]+\.\d{2})")
+DEPOSITS_RX  = re.compile(r"Deposits and other additions\s+-?([\d,]+\.\d{2})")
+ATM_SUB_RX   = re.compile(r"ATM and debit card subtractions\s+-?([\d,]+\.\d{2})")
+OTHER_SUB_RX = re.compile(r"Other subtractions\s+-?([\d,]+\.\d{2})")
+FEES_RX      = re.compile(r"Service fees\s+-?([\d,]+\.\d{2})")
+
+
+def _money(s: str) -> float:
+    return float(s.replace(",", ""))
+
+
+def parse_bofa_checking(pdf_path: Path) -> dict:
+    """Extract the Account summary from a BofA SafeBalance checking statement.
+
+    Returns a dict with the period's begin/end balances and cash-flow totals.
+    Raises ValueError if the summary block can't be located or the figures
+    don't reconcile (begin + deposits - withdrawals - fees != end).
+    """
+    with pdfplumber.open(pdf_path) as pdf:
+        text = pdf.pages[0].extract_text() or ""
+
+    def _need(rx, label):
+        m = rx.search(text)
+        if not m:
+            raise ValueError(f"Could not find '{label}' in {pdf_path.name}")
+        return m
+
+    begin_m = _need(BEGIN_BAL_RX, "Beginning balance")
+    end_m   = _need(END_BAL_RX,   "Ending balance")
+    dep_m   = _need(DEPOSITS_RX,  "Deposits and other additions")
+    atm_m   = _need(ATM_SUB_RX,   "ATM and debit card subtractions")
+    oth_m   = _need(OTHER_SUB_RX, "Other subtractions")
+    fee_m   = _need(FEES_RX,      "Service fees")
+
+    begin_balance = _money(begin_m.group(2))
+    end_balance   = _money(end_m.group(2))
+    deposits      = _money(dep_m.group(1))
+    withdrawals   = _money(atm_m.group(1)) + _money(oth_m.group(1))
+    fees          = _money(fee_m.group(1))
+
+    # Reconciliation: the summary must balance to the cent.
+    expected = round(begin_balance + deposits - withdrawals - fees, 2)
+    if expected != end_balance:
+        raise ValueError(
+            f"{pdf_path.name}: account summary does not reconcile — "
+            f"begin ${begin_balance:,.2f} + deposits ${deposits:,.2f} "
+            f"- withdrawals ${withdrawals:,.2f} - fees ${fees:,.2f} "
+            f"= ${expected:,.2f}, but statement says ${end_balance:,.2f}"
+        )
+
+    return {
+        "begin_date":    pd.to_datetime(begin_m.group(1)),
+        "begin_balance": begin_balance,
+        "end_date":      pd.to_datetime(end_m.group(1)),
+        "end_balance":   end_balance,
+        "deposits":      deposits,
+        "withdrawals":   round(withdrawals, 2),
+        "fees":          fees,
+        "source":        pdf_path.name,
+    }
+
+
+def build_balance_series(statements: list[dict]) -> pd.DataFrame:
+    """Turn per-statement summaries into a chronological balance time series.
+
+    The first statement contributes two points (its opening balance plus its
+    closing balance); each later statement contributes only its closing
+    balance, since a statement's opening balance equals the prior closing.
+    """
+    statements = sorted(statements, key=lambda s: s["end_date"])
+    rows: list[dict] = []
+    for i, st in enumerate(statements):
+        if i == 0:
+            # Opening snapshot — no flows attributed (it predates this statement).
+            rows.append({
+                "Date":            st["begin_date"].strftime("%Y-%m-%d"),
+                "Balance":         st["begin_balance"],
+                "Deposits":        "",
+                "Withdrawals":     "",
+                "ServiceFees":     "",
+                "SourceStatement": st["source"],
+            })
+        rows.append({
+            "Date":            st["end_date"].strftime("%Y-%m-%d"),
+            "Balance":         st["end_balance"],
+            "Deposits":        f"{st['deposits']:.2f}",
+            "Withdrawals":     f"{st['withdrawals']:.2f}",
+            "ServiceFees":     f"{st['fees']:.2f}",
+            "SourceStatement": st["source"],
+        })
+    return pd.DataFrame(rows)
+
+
+# ------------------------------------------------------------------
 # Detection + description cleanup
 # ------------------------------------------------------------------
 def detect_kind(pdf_path: Path) -> str:
@@ -269,10 +384,11 @@ def _clean_description(desc: str) -> str:
 # ------------------------------------------------------------------
 def main():
     all_rows: list[dict] = []
+    checking: list[dict] = []
     skipped: list[str] = []
 
-    pdfs = sorted(WORKSPACE.glob("*.pdf"))
-    print(f"Found {len(pdfs)} PDFs under {WORKSPACE}\n")
+    pdfs = sorted(ROOT.glob("*.pdf"))
+    print(f"Found {len(pdfs)} PDFs under {ROOT}\n")
 
     for pdf_path in pdfs:
         kind = detect_kind(pdf_path)
@@ -287,12 +403,16 @@ def main():
                   f"${sum(r['Amount'] for r in rows):>9,.2f}")
             all_rows.extend(rows)
         elif kind == "bofa_checking":
-            print(f"  BofA Checking {pdf_path.name:<30} -> skipped (stub: layout differs, left for next iteration)")
-            skipped.append(pdf_path.name)
+            summary = parse_bofa_checking(pdf_path)
+            print(f"  BofA Checking {pdf_path.name:<30} -> "
+                  f"{summary['begin_date']:%b %d} ${summary['begin_balance']:>8,.2f} "
+                  f"-> {summary['end_date']:%b %d} ${summary['end_balance']:>8,.2f}  (reconciles)")
+            checking.append(summary)
         else:
             print(f"  UNKNOWN       {pdf_path.name:<30} -> skipped")
             skipped.append(pdf_path.name)
 
+    # --- Credit-card purchases -> extracted_from_pdfs.csv ---
     df = pd.DataFrame(all_rows).sort_values("Date").reset_index(drop=True)
     df.to_csv(OUT_CSV, index=False)
 
@@ -308,8 +428,17 @@ def main():
         if len(disc):
             print(disc.groupby("Category")["Amount"]
                     .agg(["sum", "count"]).sort_values("sum", ascending=False).round(2))
+
+    # --- Checking balances -> bofa_balance.csv ---
+    if checking:
+        bal_df = build_balance_series(checking)
+        bal_df.to_csv(BALANCE_CSV, index=False)
+        print(f"\nWrote {len(bal_df)} balance points -> {BALANCE_CSV}")
+        for _, r in bal_df.iterrows():
+            print(f"  {r['Date']}  ${float(r['Balance']):>8,.2f}")
+
     if skipped:
-        print(f"\nSkipped {len(skipped)} PDFs (checking-account or unknown layout):")
+        print(f"\nSkipped {len(skipped)} PDFs (unknown layout):")
         for s in skipped:
             print(f"  · {s}")
 

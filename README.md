@@ -60,6 +60,7 @@ Category_Raw, Amount, Payment Method, Weekday, IsOneOff`.
 | `Dashboard_Preview.png` | High-res screenshot of the live HTML dashboard for LinkedIn / slide thumbnails / README hero. | Embed in posts, decks, portfolio sites. |
 | `expenses.csv` | The cleaned, analysis-ready transaction feed (output of `scripts/clean_data.py`). | Swap in your own data — keep the same column names and the dashboard just works. |
 | `extracted_from_pdfs.csv` | Raw output of the PDF → CSV extractor (no consolidation, no one-off flagging). | Audit trail that ties each txn back to its source statement PDF. |
+| `bofa_balance.csv` | Checking-account balance time series extracted from the 3 BofA SafeBalance statements — `Date, Balance, Deposits, Withdrawals, ServiceFees, SourceStatement`. Every period reconciles to the cent. | Powers the dashboard's checking-balance line chart; audit trail for cash flow. |
 | `figures/` | Standalone PNG exports of each notebook chart. | Slide decks, LinkedIn, etc. |
 | `scripts/` | The seven scripts that produced everything above (see below). | Re-run to rebuild any deliverable from scratch. |
 
@@ -141,7 +142,7 @@ rebuild from scratch.
 
 | Script | What it does | Output |
 |---|---|---|
-| `scripts/extract_pdfs.py` | Reads every bank/credit-card PDF in this folder, detects the format (Discover · BofA Visa · BofA Checking), and extracts purchase rows into a unified CSV. Discover categories are kept as-issued; BofA credit-card rows get `Uncategorized` for manual mapping. BofA checking statements are intentionally left as a stub — the deposit/debit layout is different and belongs in a separate parser. | `extracted_from_pdfs.csv` |
+| `scripts/extract_pdfs.py` | Reads all 9 bank/credit-card PDFs, detects the format (Discover · BofA credit card · BofA Checking), and extracts each. Credit-card purchases go to a unified CSV (Discover categories kept as-issued; BofA rows get `Uncategorized` for manual mapping). BofA checking statements yield the period balances + cash-flow totals, each reconciled to the cent. | `extracted_from_pdfs.csv` + `bofa_balance.csv` |
 | `scripts/clean_data.py` | Scrubs the raw CSV: trims headers, fixes 4 typo rows dated `2026-12-31` → `2025-12-31`, consolidates overlapping categories, flags one-off transactions, derives time features, assigns `TransactionID`. | `expenses.csv` |
 | `scripts/build_dashboard.py` | Builds the Excel-native dashboard via `openpyxl`. Structured table refs + `_xlfn.MAXIFS`. | `Personal_Finance_Dashboard.xlsx` |
 | `scripts/build_dashboard_html.py` | Reads `expenses.csv` and rewrites the JS data block in `spending_dashboard.html` (between `// __DATA_START__` / `// __DATA_END__` markers). Idempotent — safe to re-run after every `clean_data.py` update. | `spending_dashboard.html` |
@@ -153,7 +154,7 @@ rebuild from scratch.
 Drop new statement PDFs next to the existing ones and re-run:
 
 ```bash
-python scripts/extract_pdfs.py         # PDFs → extracted_from_pdfs.csv
+python scripts/extract_pdfs.py         # PDFs → extracted_from_pdfs.csv + bofa_balance.csv
 python scripts/clean_data.py           # raw CSV → expenses.csv
 python scripts/build_dashboard.py      # expenses.csv → Excel dashboard
 python scripts/build_dashboard_html.py # expenses.csv → HTML dashboard
@@ -174,12 +175,15 @@ The **9 PDF statements** in this folder are the original source of truth:
 - `eStmt_2026-01-27.pdf`, `-02-27.pdf`, `-03-27.pdf` — BofA Visa
   Signature credit card statements.
 - `eStmt_2026-01-23.pdf`, `-02-20.pdf`, `-03-24.pdf` — BofA SafeBalance
-  checking account statements (not yet parsed; the deposit/debit layout
-  needs a dedicated parser in a future iteration).
+  checking account statements. The "Account summary" block on page 1 of
+  each is parsed for beginning/ending balances and cash-flow totals.
 
-`scripts/extract_pdfs.py` ingests the first six and reconstructs
-`expenses.csv` exactly (same 121 transactions, same $4,506.53 total) —
-the end-to-end pipeline is fully reproducible from the raw PDFs.
+`scripts/extract_pdfs.py` ingests **all 9 statements**: the six credit-card
+PDFs reconstruct `expenses.csv` exactly (same 121 transactions, same
+$4,506.53 total), and the three checking PDFs produce `bofa_balance.csv`
+(4 balance points, every period reconciling `begin + deposits −
+withdrawals − fees = end` to the cent). The end-to-end pipeline is fully
+reproducible from the raw PDFs — no hand-keyed numbers anywhere.
 
 ---
 
